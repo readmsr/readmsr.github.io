@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% component home_page(section: map) %}
+<main>
+    <article>
+        <section class="body">
+            {% if section.title %}
+                {{<post.page_header title={section.title} />}}
+            {% endif %}
+            {{ section.content | safe }}
+        </section>
+    </article>
+</main>
+{% endcomponent home_page %}
+
+{% block main_content %}
+    {{<home_page section={section} />}}
+
+    {% set posts_section = get_section(path="posts/_index.md") %}
+    {% if posts_section.pages %}
+        <h2>Posts</h2>
+        <main class="post-list">
+            {{<post.list_posts pages={posts_section.pages} />}}
+        </main>
+    {% endif %}
+{% endblock main_content %}

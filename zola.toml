@@ -1,0 +1,46 @@
+base_url = "https://readmsr.github.io"
+
+title = "readmsr"
+theme = "apollo"
+
+compile_sass = true
+
+build_search_index = true
+
+[markdown]
+
+[markdown.highlighting]
+theme = "catppuccin-mocha"
+
+[extra]
+toc = true
+use_cdn = false
+favicon = "/icon/favicon.png"
+theme = "toggle"
+fancy_code = true
+dynamic_note = true
+mathjax = true
+repo_url = "https://github.com/not-matthias/apollo/tree/main/content/"
+
+fediverse = false
+fediverse_creator = ""
+
+menu = [
+    { name = "/posts", url = "/posts", weight = 1 },
+]
+
+socials = [
+    { name = "readmsr", url = "https://github.com/readmsr/", icon = "github" },
+    { name = "kegarenakiyume", url = "#", icon = "discord" },
+]
+
+stylesheets = [
+]
+
+[extra.analytics]
+enabled = false
+
+[link_checker]
+skip_prefixes = [
+    "https://www.intel.com",
+]

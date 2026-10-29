@@ -1,0 +1,31 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=100']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: ^(static/|content/)
+      - id: mixed-line-ending
+        exclude: ^(static/|content/)
+      - id: trailing-whitespace
+        exclude: ^(static/|content/)
+
+  - repo: local
+    hooks:
+      - id: treefmt
+        name: treefmt
+        entry: treefmt
+        language: system
+        exclude: ^(static/|content/)
+        types:
+          - nix
+          - toml
+          - markdown
+          - scss
+          - html
