@@ -31,7 +31,7 @@ menu = [
 
 socials = [
     { name = "readmsr", url = "https://github.com/readmsr/", icon = "github" },
-    { name = "kegarenakiyume", url = "#", icon = "discord" },
+    { name = "kegarenakiyume", url = "https://discord.com/users/871331060351389756", icon = "discord" },
 ]
 
 stylesheets = [

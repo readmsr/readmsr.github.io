@@ -249,3 +249,5 @@ Additionally, it could be used to trick programs that rely on specific CPU featu
 ## Conclusion
 
 At the end of the day, this isn’t a groundbreaking find, as the MSR has already been documented, the quirks related to it have been discussed and worked on across some Linux kernel mailing list threads, and in reality, there are very few practical use cases for it. Yet, it remains obscure and unknown even to most people interested in hypervisors, and it’s exactly why I decided to write this post. All things considered, messing around with the OS and experimenting to see how the CPU behaves has been both fun and a great learning experience for me.
+
+The source code for this project can be found on [GitHub](https://github.com/readmsr/CpuidFaultNoHv).
